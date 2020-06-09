@@ -50,16 +50,17 @@ def get_schedule(time='week'):
                                           singleEvents=True,
                                           orderBy='startTime').execute()
     events = events_result.get('items', [])
-    result = []
+    result = {}
     if not events:
         return 'No classes in the range. enjoy the off time!'
     for event in events:
         start = event['start'].get('dateTime', event['start'].get('date'))
         start = start.split('T')[0]
+        result.setdefault(start, [])
         summary = re.match(r'.*(\d{2}:\d{2} -.* )\(\d LE\)(.*)', event['summary'])
         if summary is not None:
             summary = summary.group(1) + summary.group(2)
-            result.append((start, summary))
+            result[start].append(summary)
     return result
 
 

@@ -2,6 +2,7 @@ import praw
 import random as rn
 import json
 
+
 def reddit_instance():
     """
     I hid my credentials in a json file, the function won't run with them
@@ -29,5 +30,4 @@ def get_reddit(sub, when='all'):
     if submission.is_self:
         return submission.title, submission.shortlink
     else:
-        return submission.preview['images'][0]['source']['url']
-
+        return submission.preview['images'][0]['source']['url'], submission.title, submission.shortlink

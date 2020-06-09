@@ -1,10 +1,12 @@
-from telegram.ext import Updater, CommandHandler
 from datetime import date, timedelta, datetime
-from APIs import *
-from schedule import *
-from reddit_api import *
+from telegram.ext import Updater, CommandHandler, CallbackContext
 
-# IMPORTANT: two updaters running -the class the receives bot updates- will probably not work
+from APIs import *
+from reddit_api import *
+from schedule import *
+from grade_notifier import *
+
+# IMPORTANT: two updaters running -the class the receives bot updates- will not work
 ###########
 # reddit and calendar functions won't work because of Oauth2.
 # basically reddit API and google calendar API,
@@ -65,8 +67,9 @@ def hi(update, context):
     chat_id = update.effective_chat.id
     user_name = update.message['chat']['first_name']
     context.bot.send_message(chat_id=chat_id, text=f'welcome {user_name}')
-    context.bot.send_message(chat_id=chat_id, text=f'I\'m a bot\nblip blop I\'m a robot 🤖')
-    context.bot.send_message(chat_id=chat_id, text=f'press "/" to see the list of my current commands (more could come)')
+    context.bot.send_message(chat_id=chat_id, text=f'blip blop I\'m a robot 🤖')
+    context.bot.send_message(chat_id=chat_id, text=f'press "/" to see the list of my '
+                                                   f'current commands')
     save(update)
 
 
@@ -74,8 +77,9 @@ def reddit(update, context):
     chat_id = update.effective_chat.id
     args = context.args
     result = get_reddit(*args)
-    if type(result) == str:
-        context.bot.send_photo(chat_id=chat_id, photo=result)
+    if len(result) == 3:
+        context.bot.send_message(chat_id=chat_id, text=f'{result[1]}')
+        context.bot.send_photo(chat_id=chat_id, photo=result[0])
     else:
         context.bot.send_message(chat_id=chat_id,
                                  text=f'{result[0]}\n{result[1]}')
@@ -86,12 +90,16 @@ def schedule(update, context):
     chat_id = update.effective_chat.id
     arg = context.args[0]
     result = get_schedule(arg)
+    string = ''
+    num_emoji = ('1⃣', '2⃣', '3⃣', '4⃣', '5⃣', '6⃣')
     if type(result) == str:
         context.bot.send_message(chat_id, result)
     else:
-        for i in range(len(result)):
-            string = result[i][0] + '\n' + result[i][1]
-            context.bot.send_message(chat_id, string)
+        for key, value in result.items():
+            string += '📆' + key + '📆\n\n'
+            for i, v in enumerate(value, 0):
+                string += num_emoji[i] + ' ' + v + '\n\n'
+        context.bot.send_message(chat_id, string)
     save(update)
 
 
@@ -104,9 +112,17 @@ def save(update):
         f.write(f'{now},{chat_id},{user_name},{text}\n')
 
 
+def grade(context: CallbackContext):
+    last_grade = get_last_grade()
+    chat_id = '-335690309'
+    if last_grade is not None:
+        context.bot.send_message(chat_id, last_grade)
+
+
 def main():
 
-    """the updater identifies the bot with the bot token
+    """
+    the updater identifies the bot with the bot token
     the bot probably won't run if two updaters are running
     on two different machines
 
@@ -119,6 +135,8 @@ def main():
 
     bot = '1182377175:AAFOx_MF2ILQZ4eMcTql9ytD1mShJaZT1Ac'
     updater = Updater(bot, use_context=True)
+    job = updater.job_queue
+    job.run_repeating(grade, interval=300, first=0)
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('dog', dog))
     dp.add_handler(CommandHandler('start', hi))
@@ -133,4 +151,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
