@@ -2,6 +2,7 @@ from selenium import webdriver
 from time import sleep
 import json
 
+# webdriver wasn't uploaded
 path = "c:\\users\\aboud\\web drivers\\chromedriver.exe"
 
 
