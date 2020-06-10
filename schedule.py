@@ -8,13 +8,11 @@ from google.auth.transport.requests import Request
 import re
 
 # the scope of the API is what kind of functions it may use. this scope allows to write and read events
-# the code below loads the token and request authorization from the user to access his/her account.
-# if you authorized the app it will create a credentials.json file but then you need to use your
-# IMC calenderID which you would find in your google calendar settings if you added the calendar there
-# OTHERWISE IT WON'T WORK
-
-# the process of running the API isn't very simple. you need to go to google's developer console
-# and register your program, activate the API for it and couple of other steps after
+# the code below loads the token and it doesn't exists it request authorization from the user to access his/her account.
+# the credentials.json file contains the client_id and client_secret and other information which you get from google
+# developer console after creating an acount and activate the API for a project. you need also the
+# IMC calenderID which you would find in your google calendar settings if you added the calendar there.
+# my ID won't work because it's on my account. you need to use yours OTHERWISE IT WON'T WORK
 
 SCOPES = ['https://www.googleapis.com/auth/calendar.events']
 creds = None
