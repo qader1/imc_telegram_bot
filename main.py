@@ -8,12 +8,13 @@ from grade_notifier import *
 
 # IMPORTANT: two updaters running -the class the receives bot updates- will not work
 ###########
-# reddit and calendar functions won't work because of Oauth2.
+# reddit and calendar functions won't work because of Oauth2 and tokens.
 # basically reddit API and google calendar API,
 # require authorization from user to access their account
+# they access information through user profiles not public information
 # in reddit there is no way around it. I didn't try with google's
 ###########
-# I didn't upload my credentials but I uploaded the token.
+# I didn't upload my credentials nor the tokens.
 # I made comments in parts of code that I thought need clarifying
 
 
