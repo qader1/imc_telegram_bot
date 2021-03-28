@@ -5,7 +5,7 @@ import json
 
 def reddit_instance():
     """
-    I hid my credentials in a json file, the function won't run without them
+    I hid my credentials in a json file, the function won't run with them
     """
     with open('reddit_cred.json') as f:
         cred = json.load(f)

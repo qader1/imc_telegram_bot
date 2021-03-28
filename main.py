@@ -1,20 +1,22 @@
 from datetime import date, timedelta, datetime
-from telegram.ext import Updater, CommandHandler, CallbackContext
-
+from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, filters
 from APIs import *
 from reddit_api import *
 from schedule import *
 from grade_notifier import *
+import pytube as ut
+import random as rn
+import time
+
 
 # IMPORTANT: two updaters running -the class the receives bot updates- will not work
 ###########
-# reddit and calendar functions won't work because of Oauth2 and tokens.
+# reddit and calendar functions won't work because of Oauth2.
 # basically reddit API and google calendar API,
 # require authorization from user to access their account
-# they access information through user profiles not public information
 # in reddit there is no way around it. I didn't try with google's
 ###########
-# I didn't upload my credentials nor the tokens.
+# I didn't upload my credentials but I uploaded the token.
 # I made comments in parts of code that I thought need clarifying
 
 
@@ -115,13 +117,46 @@ def save(update):
 
 def grade(context: CallbackContext):
     last_grade = get_last_grade()
-    chat_id = '-335690309'
+    group = '-335690309'
     if last_grade is not None:
-        context.bot.send_message(chat_id, last_grade)
+        context.bot.send_message(group, last_grade)
+
+
+def message(update, context):
+    name = update.message['from_user']['first_name']
+    words = update.message.text.lower().split()
+
+    if re.match(r'(ha)+|lol|kek', update.message.text.lower()):
+        context.bot.send_message(update.message.chat.id, 'lol good one')
+    if 'bot' in words:
+        if 'time' in words or 'time?' in words:
+            t = time.ctime().split()[3]
+            context.bot.send_message(update.message.chat.id, f'ok {name}, the time is {t}')
+
+
+def scapegoat(update, context):
+    lst = ['abdulkader', 'bence', 'erik', 'luc',
+           'akash', 'elias', 'peter', 'marwin',
+           'ioan', 'filip', 'jp', 'vassili', 'afif',
+           'sophie', 'steve', 'alvaro', 'simon',
+           'david', 'markus', 'anna', 'fatos',
+           'marijana', 'thomas']
+    context.bot.send_message(update.message.chat.id, f'{rn.choice(lst)}')
+
+
+def youtube(update, context):
+    vid = ut.YouTube(context.args[0])
+    best = vid.streams\
+        .filter(progressive=True, file_extension='mp4')\
+        .order_by('resolution')\
+        .desc()\
+        .first()\
+        .download()
+    with open(best, 'rb') as f:
+        context.bot.send_video(update.effective_chat.id, f, supports_streaming=True)
 
 
 def main():
-
     """
     the updater identifies the bot with the bot token
     the bot probably won't run if two updaters are running
@@ -133,7 +168,6 @@ def main():
                        context and update have all the information about the user or group, message id
                        and arguments passed after the command in the bot
     """
-
     bot = '1182377175:AAFOx_MF2ILQZ4eMcTql9ytD1mShJaZT1Ac'
     updater = Updater(bot, use_context=True)
     job = updater.job_queue
@@ -146,9 +180,14 @@ def main():
     dp.add_handler(CommandHandler('quote', q))
     dp.add_handler(CommandHandler('schedule', schedule))
     dp.add_handler(CommandHandler('reddit', reddit))
+    dp.add_handler(CommandHandler('scapegoat', scapegoat))
+    dp.add_handler(CommandHandler('youtube', youtube))
+    # dp.add_handler(CommandHandler('send_m', lambda x, y: y.bot.send_message('-335690309', y.args[0])))
+    # dp.add_handler(MessageHandler(filters.Filters.text, message))
     updater.start_polling()
     updater.idle()
 
 
 if __name__ == '__main__':
     main()
+

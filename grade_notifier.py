@@ -2,8 +2,7 @@ from selenium import webdriver
 from time import sleep
 import json
 
-# webdriver wasn't uploaded
-path = "c:\\users\\aboud\\web drivers\\chromedriver.exe"
+path = "chromedriver.exe"
 
 
 def click_button(driver):
@@ -19,7 +18,7 @@ def get_credentials():
     return cred
 
 
-def get_last_grade():
+def get_grade_page():
     cred = get_credentials()
     op = webdriver.ChromeOptions()
     op.add_argument('headless')
@@ -29,7 +28,7 @@ def get_last_grade():
     login = driver.find_element_by_name('loginfmt')
     login.send_keys(cred['account'])
     click_button(driver)
-    sleep(0.75)
+    sleep(0.90)
     password = driver.find_element_by_name('passwd')
     password.send_keys(cred['password'])
     click_button(driver)
@@ -38,7 +37,13 @@ def get_last_grade():
     button.click()
     sleep(1.5)
     driver.switch_to.window(driver.window_handles[-1])
+    return driver
+
+
+def get_last_grade():
+    driver = get_grade_page()
     get_last = driver.find_element_by_xpath('//*[@data-categoryid="4"]/descendant::h4').get_attribute('innerHTML')
+    driver.quit()
     with open('subjects.txt', 'r') as f:
         file = f.read()
     with open('subjects.txt', 'a') as f:
@@ -48,3 +53,4 @@ def get_last_grade():
         else:
             f.write(get_last + '\n')
             return 'New grade!\n' + get_last
+

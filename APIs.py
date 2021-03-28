@@ -1,7 +1,6 @@
 import requests
 import random as rn
 
-# the first 3 APIs don't require tokens. the last one requires free registration to get the token
 
 def get_quote():
     content = requests.get('https://type.fit/api/quotes').json()
@@ -24,9 +23,8 @@ def get_advice():
 def get_weather(when):
     """
     this api is fairly easy.
-    just register and get a token from openweathermap.org
+    use just register and get a token from openweathermap.org
     the token id is in the url.
-    I think there are limited number of calls you can make per day
     """
     content = requests.get('http://api.openweathermap.org/data/2.5/forecast?'
                            'id=7871496&APPID=b5b0b2d3308fdac038056078fb3ae027').json()
